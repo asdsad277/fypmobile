@@ -26,8 +26,11 @@ export default class App extends Component {
     var setac = await AsyncStorage.getItem("logined");
     this.setState({saveac:setac});
   }
-  async logout(){
+  async handlelogout(){
     await AsyncStorage.removeItem('logined');
+  }
+  logout=()=>{ 
+    this.handlelogout();
     alert("logout success!");
     this.setState({saveac:null});
     this.props.navigation.navigate('Home');
@@ -130,8 +133,7 @@ export default class App extends Component {
         <Text style={styles.instructions}>To get started, edit App.js</Text>
         <Button
           title="logout"
-          onPress={this.logout}
-        />
+          onPress={this.logout}/>
       </View>
       );
     }
