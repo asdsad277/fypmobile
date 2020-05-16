@@ -7,16 +7,16 @@ import { Platform,
   Image,
   RefreshControl,
   TouchableOpacity,
-  ActivityIndicator 
+  ActivityIndicator,
+  TextInput, 
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons'
 export default class App extends Component {
   constructor(props){
     super(props);
     this.state={
       dataSource:[],
       isLoading:true,
-      image:require("./img/demon.jpg"),
-      images:""
     }
   }
   loaddata(){
@@ -42,7 +42,15 @@ export default class App extends Component {
   }
   renderItem=({item})=>{
     return(
-      <View style={{flex:1,flexDirection:'row',marginBottom:3}}>
+      <TouchableOpacity style={{flex:1,flexDirection:'row',marginBottom:3}}
+      onPress={()=>{
+        this.props.navigation.navigate('devuse', {
+          shopid: item.ShopID,
+          shoptype:item.Type,
+          shoptel:item.Tel,
+          shopadd:item.Address        
+        });
+      }}>
         <Image style={{width:100,height:100,margin:5}}
             source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+item.ShopID+".jpg"}}/>
         <View style={{flex:1,justifyContent:'center',marginleft:5}}>
@@ -59,7 +67,7 @@ export default class App extends Component {
             Address:{item.Address}
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
   renderSeparator=()=>{
@@ -75,11 +83,27 @@ export default class App extends Component {
         <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
           <ActivityIndicator size="large" color="#330066"animating/>
         </View>
-        :
-        
+        :    
         <View>
-          <View style={{height:'10%',width:'100%',backgroundColor:'black'}}>
-            </View>
+           <View style={{  marginBottom:20,height: this.startHeaderHeight, backgroundColor: 'white', borderBottomWidth: 2, borderBottomColor: '#dddddd' }}>
+                        <View style={{
+                            flexDirection: 'row', padding: 10,
+                            backgroundColor: 'white', marginHorizontal: 20,
+                            shadowOffset: { width: 0, height: 0 },
+                            shadowColor: 'black',
+                            shadowOpacity: 0.2,
+                            elevation: 1,
+                            marginTop: Platform.OS == 'android' ? 30 : null
+                        }}>
+                            <Icon name="ios-search" size={20} style={{ marginRight: 10 }} />
+                            <TextInput
+                                underlineColorAndroid="transparent"
+                                placeholder="Try serach from this!"
+                                placeholderTextColor="grey"
+                                style={{flex: 1, fontWeight: '700', backgroundColor: 'white' }}
+                            />
+                        </View>
+                    </View>
             <FlatList
                 data={this.state.dataSource}
                 renderItem={this.renderItem}

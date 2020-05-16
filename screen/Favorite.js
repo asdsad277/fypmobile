@@ -17,15 +17,20 @@ export default class App extends Component {
       isLoading:true
     }
   }
-  async componentDidUpdate(prevProps, prevState, snapshot){
-    if (this.state.ac !== prevState.ac) {
-      var setac= await AsyncStorage.getItem("logined");
-      this.setState({ac:setac});
-    }
-  }
   async componentDidMount(){
-    var setac= await AsyncStorage.getItem("logined");
-    this.setState({ac:setac});
+    this.focusSubscription = this.props.navigation.addListener('focus', async() => {
+      await AsyncStorage.getItem("logined").then((value) => {
+        if (value !== null) {
+          this.setState({ ac:value });
+        }else{
+          this.setState({ ac:null });
+        }
+      });
+    });
+  }
+  componentWillUnmount() {
+    this.focusSubscription && this.focusSubscription.remove();
+    this.focusSubscription = null;
   }
   fetchdata() {
     const {ac} = this.state.ac;
@@ -56,7 +61,7 @@ export default class App extends Component {
       <View style={{flex:1,flexDirection:'row',marginBottom:3}}>
         <View style={{flex:1,justifyContent:'center',marginleft:5}}>
           <Text style={{fontSize:18,color:'green',marginBottom:15}}>
-            Name:{item.Name}
+            Name:{item.Name}0
           </Text>
           <Text style={{fontSize:16,color:'red'}}>
             Address:{item.Address}
