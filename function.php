@@ -52,8 +52,29 @@ switch($option){
 		echo json_encode($re);
 		mysqli_free_result($rs);
     break;
-    case "":break;
-    default:   
+    case "loadshop":
+		$para=$obj['para'];
+		$sql = "Select * from shop where shopID ='".$para."';";
+        $rs = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+        while($rc = mysqli_fetch_assoc($rs)){
+			$re[]=$rc;
+        }
+		echo json_encode($re);
+		mysqli_free_result($rs);
+	break;
+	case "loaduser":
+		$para = $obj['para'];
+		$sql = "Select * from account where AccountID ='".$para."';";
+		$rs = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+        while($rc = mysqli_fetch_assoc($rs)){
+			$re[]=$rc;
+        }
+		echo json_encode($re);
+		mysqli_free_result($rs);
+		break;
+    default:
+		echo json_encode("error occur");
+		
 }
 
 ?>
