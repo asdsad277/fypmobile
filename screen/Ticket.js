@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Text,
   View,
-  AsyncStorage
+  AsyncStorage,
+  Image
 } from 'react-native';
 export default class App extends Component {
   constructor(props) {
@@ -16,47 +17,53 @@ export default class App extends Component {
       ac: "",
       dataSource: [],
       isLoading: true,
-      shop: this.props.shopid,
+      id:"",
     }
+  }
+  get initstate(){
+    return{
+    ac: "",
+    dataSource: [],
+    isLoading: true,
+    id:"",};
   }
   async componentDidMount() {
     this.focusSubscription = this.props.navigation.addListener('focus', async () => {
       await AsyncStorage.getItem("logined").then((value) => {
-        if (value !== null) {
+        if (value != null) {
           this.setState({ ac: value });
         } else {
-          this.setState({ ac: null });
+          this.setState({ ac:"" });
         }
       });
     });
-  }
+    this.focusSubscription = this.props.navigation.addListener('blur', async () => {
+      this.setState(this.initstate);
+    });
+    const { shopid } =this.props.route.params?this.props.route.params:null;
+    this.setState({id:shopid});
+    }   
   componentWillUnmount = () => {
     this.focusSubscription && this.focusSubscription.remove();
     this.focusSubscription = null;
   }
-  fetchstore(){
-    var {shop}= this.state;
-    fetch('http://seantalk.asuscomm.com/mobile/function.php', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        option: "loadrest",
-        para: shop
-      })
+  getdata(shopid){
+    fetch('http://seantalk.asuscomm.com/mobile/function.php',{
+    method:'POST',
+    headers:{
+      Accept: 'application/json',
+      'Content-type': 'application/json',
+    },
+    body:JSON.stringify({
+      option:"loadshop",
+      para:shopid
     })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          dataSource: responseJson,
-          isLoading: false
-        })
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  }).then((response)=>response.json())
+  .then((responseJson)=>{
+      this.setState({
+        dataSource:responseJson
+      })            
+  })
   }
   fetchdata() {
     const { ac } = this.state;
@@ -73,6 +80,7 @@ export default class App extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
+        console.log(responseJson)
         this.setState({
           dataSource: responseJson,
           isLoading: false
@@ -110,29 +118,68 @@ export default class App extends Component {
   }
   render() {
     var ac = this.state.ac;
-    var shop = this.state.shop;
-    if (ac == null || ac == "") {
-      if (shop == null || shop == "") {
+    var id = this.state.id;
+    if (id != null && id != ""){
+      this.getdata(id);
+        if (ac == null || ac == "") {
         return (
-          <View style={styles.container}>
-            <Text style={styles.welcome}>Login to use this function!</Text>
-            <TouchableOpacity style={styles.loginBtn}
-              onPress={() => this.props.navigation.navigate("profile")}>
-              <Text style={{ color: "black" }}>
-                Login!
-            </Text>
-            </TouchableOpacity >
+          <View>   
+          <FlatList data={this.state.dataSource}
+          renderItem={({item})=>
+              <View style={{flex:1}}>
+                <Image style={{width:400 ,height:300,margin:5}}
+                source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+item.ShopID+".jpg"}}/>                   
+                  <View style={{ flex: 2, alignItems: 'stretch' }}>
+                    <Text>Name:{item.Name}</Text>
+                    <Text>type:{item.Type}</Text>
+                    <Text>Phone No.:{item.Tel}</Text>
+                    <Text>Email:{item.Email}</Text>
+                    <Text>Address:{item.Address}</Text>
+                    <Text>Description:{item.Descri}</Text>
+                  </View>
+                </View>
+                  }>
+
+          </FlatList>
           </View>
         )
-      } else if (shop != null && shop != "") {
-        return (
-          <View style={styles.container}>
-            <Image style={{width:100,height:100,margin:5}}
-            source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+shop+".jpg"}}/>
+      }else{
+        return(
+          <View>   
+          <FlatList data={this.state.dataSource}
+          renderItem={({item})=>
+              <View style={{flex:1}}>
+                <Image style={{width:400 ,height:300,margin:5}}
+                source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+item.ShopID+".jpg"}}/>                   
+                  <View style={{ flex: 2, alignItems: 'stretch' }}>
+                    <Text>Name:{item.Name}</Text>
+                    <Text>type:{item.Type}</Text>
+                    <Text>Phone No.:{item.Tel}</Text>
+                    <Text>Email:{item.Email}</Text>
+                    <Text>Address:{item.Address}</Text>
+                    <Text>Description:{item.Descri}</Text>
+                  </View>
+                </View>
+                  }>
+
+          </FlatList>
           </View>
         )
       }
-      else {
+    }else if (id == null || id == ""){
+      return (
+        <View style={styles.container}>
+        <Text style={styles.welcome}>Login to use this function!</Text>
+        <TouchableOpacity style={styles.loginBtn}
+          onPress={() => this.props.navigation.navigate("profile")}>
+          <Text style={{ color: "black" }}>
+            Login!
+        </Text>
+        </TouchableOpacity >
+      </View>
+        
+      )
+    }else{
         this.fetchdata();
         return (
           this.state.isLading
@@ -155,7 +202,7 @@ export default class App extends Component {
       }
     }
   }
-}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -44,11 +44,8 @@ export default class App extends Component {
     return(
       <TouchableOpacity style={{flex:1,flexDirection:'row',marginBottom:3}}
       onPress={()=>{
-        this.props.navigation.navigate('devuse', {
-          shopid: item.ShopID,
-          shoptype:item.Type,
-          shoptel:item.Tel,
-          shopadd:item.Address        
+        this.props.navigation.navigate('ticket', {
+          shopid: item.ShopID, 
         });
       }}>
         <Image style={{width:100,height:100,margin:5}}
