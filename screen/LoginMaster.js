@@ -181,7 +181,7 @@ export default class App extends Component {
           <FlatList data={this.state.dataSource}
             renderItem={({item}) =>
               <View>
-                <Text style={styles.welcome}>This is Your profile!</Text>
+                <Text style={styles.welcome}>Profile</Text>
                   <Text>First Name:{item.FirstName}</Text>
                   <Text>Last Name:{item.LastName}</Text>
                   <Text>Gender:{item.Gender}</Text>
@@ -190,7 +190,6 @@ export default class App extends Component {
                   <Text>Tel No.:{item.Tel}</Text>
               </View>
             }>
-
           </FlatList>
           <Button title="logout" onPress={this.logout} />
         </View>

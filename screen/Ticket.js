@@ -17,56 +17,27 @@ export default class App extends Component {
       ac: "",
       dataSource: [],
       isLoading: true,
-      id:"",
+      id: "",
     }
-  }
-  get initstate(){
-    return{
-    ac: "",
-    dataSource: [],
-    isLoading: true,
-    id:"",};
   }
   async componentDidMount() {
     this.focusSubscription = this.props.navigation.addListener('focus', async () => {
       await AsyncStorage.getItem("logined").then((value) => {
-        if (value != null) {
+        if (value !== null) {
           this.setState({ ac: value });
+          this.fetchdata(value);
         } else {
-          this.setState({ ac:"" });
+          this.setState({ ac: "" });
         }
       });
     });
-    this.focusSubscription = this.props.navigation.addListener('blur', async () => {
-      this.setState(this.initstate);
-    });
-    const { shopid } =this.props.route.params?this.props.route.params:null;
-    this.setState({id:shopid});
-    }   
+  }
   componentWillUnmount = () => {
     this.focusSubscription && this.focusSubscription.remove();
     this.focusSubscription = null;
   }
-  getdata(shopid){
-    fetch('http://seantalk.asuscomm.com/mobile/function.php',{
-    method:'POST',
-    headers:{
-      Accept: 'application/json',
-      'Content-type': 'application/json',
-    },
-    body:JSON.stringify({
-      option:"loadshop",
-      para:shopid
-    })
-  }).then((response)=>response.json())
-  .then((responseJson)=>{
-      this.setState({
-        dataSource:responseJson
-      })            
-  })
-  }
-  fetchdata() {
-    const { ac } = this.state;
+
+  fetchdata(ac) {
     fetch('http://seantalk.asuscomm.com/mobile/function.php', {
       method: 'POST',
       headers: {
@@ -92,8 +63,8 @@ export default class App extends Component {
   }
   renderItem = ({ item }) => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row', marginBottom: 3 }}>
-        <View style={{ flex: 1, justifyContent: 'center', marginleft: 5 }}>
+      <View >
+        <View style={{ justifyContent: 'center', marginleft: 5 }}>
           <Text style={{ fontSize: 18, color: 'green', marginBottom: 15 }}>
             Ticket ID:{item.TicketID}
           </Text>
@@ -117,91 +88,44 @@ export default class App extends Component {
     )
   }
   render() {
-    var ac = this.state.ac;
-    var id = this.state.id;
-    if (id != null && id != ""){
-      this.getdata(id);
-        if (ac == null || ac == "") {
-        return (
-          <View>   
-          <FlatList data={this.state.dataSource}
-          renderItem={({item})=>
-              <View style={{flex:1}}>
-                <Image style={{width:400 ,height:300,margin:5}}
-                source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+item.ShopID+".jpg"}}/>                   
-                  <View style={{ flex: 2, alignItems: 'stretch' }}>
-                    <Text>Name:{item.Name}</Text>
-                    <Text>type:{item.Type}</Text>
-                    <Text>Phone No.:{item.Tel}</Text>
-                    <Text>Email:{item.Email}</Text>
-                    <Text>Address:{item.Address}</Text>
-                    <Text>Description:{item.Descri}</Text>
-                  </View>
-                </View>
-                  }>
-
-          </FlatList>
-          </View>
-        )
-      }else{
-        return(
-          <View>   
-          <FlatList data={this.state.dataSource}
-          renderItem={({item})=>
-              <View style={{flex:1}}>
-                <Image style={{width:400 ,height:300,margin:5}}
-                source={{uri:"http://seantalk.asuscomm.com/fyp/img/shop/R/"+item.ShopID+".jpg"}}/>                   
-                  <View style={{ flex: 2, alignItems: 'stretch' }}>
-                    <Text>Name:{item.Name}</Text>
-                    <Text>type:{item.Type}</Text>
-                    <Text>Phone No.:{item.Tel}</Text>
-                    <Text>Email:{item.Email}</Text>
-                    <Text>Address:{item.Address}</Text>
-                    <Text>Description:{item.Descri}</Text>
-                  </View>
-                </View>
-                  }>
-
-          </FlatList>
-          </View>
-        )
-      }
-    }else if (id == null || id == ""){
+    const ac = this.state.ac;
+    if (ac == null || ac == "") {
       return (
         <View style={styles.container}>
-        <Text style={styles.welcome}>Login to use this function!</Text>
-        <TouchableOpacity style={styles.loginBtn}
-          onPress={() => this.props.navigation.navigate("profile")}>
-          <Text style={{ color: "black" }}>
-            Login!
-        </Text>
-        </TouchableOpacity >
-      </View>
-        
+          <Text style={styles.welcome}>Login to use this function!</Text>
+          <TouchableOpacity style={styles.loginBtn}
+            onPress={() => this.props.navigation.navigate("profile")}>
+            <Text style={{ color: "black" }}>
+              Login!
+            </Text>
+          </TouchableOpacity >
+        </View>
       )
-    }else{
-        this.fetchdata();
-        return (
-          this.state.isLading
-            ?
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size="large" color="#330066" animating />
+    } else {
+      return (
+        this.state.isLoading
+          ?
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#330066" animating />
+          </View>
+          :
+          <View >
+            <View style={{ height: 20, width: '100%', backgroundColor: 'black' }}>
             </View>
-            :
-            <View>
-              <View style={{ height: 1, width: '100%', backgroundColor: 'black' }}>
-              </View>
-              <FlatList
-                data={this.state.dataSource}
-                renderItem={this.renderItem}
-                keyExtractor={(item) => item.TicketID}
-                ItemSeparatorComponent={this.renderSeparator}
-              />
-            </View>
-        )
-      }
+            <FlatList
+              data={this.state.dataSource}
+              renderItem={this.renderItem}
+              keyExtractor={(item) => item.TicketID}
+              ItemSeparatorComponent={this.renderSeparator}
+            />
+          </View>
+      )
     }
+
+
+
   }
+}
 
 const styles = StyleSheet.create({
   container: {

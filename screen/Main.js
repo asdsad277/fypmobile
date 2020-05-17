@@ -17,8 +17,10 @@ export default class App extends Component {
     this.state={
       dataSource:[],
       isLoading:true,
+      shop:[],
     }
   }
+  
   loaddata(){
     fetch('http://seantalk.asuscomm.com/mobile/function.php',{
       method:'POST',
@@ -40,11 +42,12 @@ export default class App extends Component {
   componentDidMount(){
     this.loaddata();
   }
+
   renderItem=({item})=>{
     return(
       <TouchableOpacity style={{flex:1,flexDirection:'row',marginBottom:3}}
       onPress={()=>{
-        this.props.navigation.navigate('ticket', {
+        this.props.navigation.navigate('Restaurant', {
           shopid: item.ShopID, 
         });
       }}>
