@@ -179,6 +179,7 @@ export default class App extends Component {
       return (
         <View style={{flex: 1}}>          
           <FlatList data={this.state.dataSource}
+            keyExtractor={(item)=>item.AccountID}
             renderItem={({item}) =>
               <View>
                 <Text style={styles.welcome}>Profile</Text>

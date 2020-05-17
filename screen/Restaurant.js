@@ -8,23 +8,27 @@ import {
   Text,
   View,
   AsyncStorage,
-  Image
+  Image,
+  TextInput,
+  Linking
 } from 'react-native';
-import { Button } from 'react-native-paper';
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       ac: "",
       shopdata: [],
-      id:"",
+      shopid:"",
+      numppl:"1",
     }
+    this.getticket=this.getticket.bind(this);
   }
   get initstate() {
     return {
       ac: "",
       shopdata: [],
-      id: "",
+      shopid: "",
+      numppl:"1",
     };
   }
   async componentDidMount() {
@@ -39,7 +43,7 @@ export default class App extends Component {
       });     
       const { shopid } = this.props.route.params ? this.props.route.params : "";
       if (shopid == "" || shopid == null) { } else {
-        this.setState({ id: shopid });
+        this.setState({ shopid: shopid });
         this.getdata(shopid);
       }
     });
@@ -62,19 +66,31 @@ export default class App extends Component {
       })
     }).then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
           shopdata: responseJson
         })
-      })
+      }).catch((error) => {
+        console.log(body);
+        console.error(error);
+      });
   }
-  getticket(){
-    alert('get ticket');
-  }
+  getticket=()=>{  
+    const{shopid,ac,numppl}=this.state; 
+      const uri = "http://seantalk.asuscomm.com/fyp/Controllers/getTicketMoblie.php?AccountID="+ac+"&SID="+shopid+"&nos="+numppl;
+      Linking.canOpenURL(uri).then(supported => {
+        if (supported) {
+          Linking.openURL(uri);
+        } else {
+          console.log("Don't know how to open URI: " + uri);
+        }
+      });
+    }
+  
   render() {
-    var ac = this.state.ac;
-    var id = this.state.id;
-    if (id != null && id != "") {
+    const ac = this.state.ac;
+    const shopid = this.state.shopid;
+    const numppl= this.state.numppl;
+    if (shopid != null && shopid != "") {
       if (ac == null || ac == "") {
         return (
           <View>
@@ -93,14 +109,14 @@ export default class App extends Component {
                   </View>
                 </View>
               }>
-
             </FlatList>
           </View>
         )
       } else {
-        return (
+        return ( 
           <View>
             <FlatList data={this.state.shopdata}
+              keyExtractor={(item) => item.ShopID}
               renderItem={({ item }) =>
                 <View style={{ flex: 1 }}>
                   <Image style={{ width: 400, height: 300, margin: 5 }}
@@ -113,8 +129,17 @@ export default class App extends Component {
                     <Text>Address:{item.Address}</Text>
                     <Text>Description:{item.Descri}</Text>
                   </View>
+                  <Text>Enter:</Text>
+                  <View style={styles.inputView} >
+                  <TextInput
+              style={styles.inputText}
+              placeholder="number of people"
+              placeholderTextColor="#003f5c"
+              onChangeText={text=>this.setState({numppl:text})}
+              value={numppl}/>
+                  </View>
                   <TouchableOpacity style={styles.loginBtn}
-                    onPress={this.getticket}>
+                    onPress={this.getticket.bind()}>
                     <Text style={{ color: "black" }}>
                       get this ticket!
                     </Text>
@@ -126,7 +151,7 @@ export default class App extends Component {
           </View>
         )
       }
-    } else if (id == null || id == "") {
+    } else if (shopid == null || shopid == "") {
       if (ac == null || ac == "") {
         return (
           <View style={styles.container}>
@@ -192,5 +217,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
     marginBottom: 10
+  },
+  inputText: {
+    height: 50,
+    color: "black"
+  },
+  inputView: {
+    width: "80%",
+    backgroundColor: "lightgrey",
+    borderRadius: 25,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: "center",
+    padding: 20
   }
 });

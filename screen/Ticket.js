@@ -10,6 +10,7 @@ import {
   AsyncStorage,
   Image
 } from 'react-native';
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +52,6 @@ export default class App extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson)
         this.setState({
           dataSource: responseJson,
           isLoading: false
