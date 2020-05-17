@@ -4,6 +4,19 @@ $json = file_get_contents("php://input");
 $obj = json_decode($json, true);
 $option=$obj["option"];
 error_reporting(0);
+date_default_timezone_set("HongKong");
+function getID($table,$col)
+{
+	$sql = "Select * from ".$table;
+	$rs = mysqli_query($conn, $sql) or die (mysqli_error($conn));
+	$ID = 1;				
+	while($rc = mysqli_fetch_assoc($rs)) {
+		if ($rc[$col]==$ID){
+		$ID++;
+		}
+	}
+	return $ID;
+}	
 switch($option){
     case "login":
         $ac = $obj["ac"];
@@ -72,6 +85,25 @@ switch($option){
 		echo json_encode($re);
 		mysqli_free_result($rs);
 		break;
+	case "getticket":
+		$shopid = $obj['shopid'];
+		$ac = $obj['ac'];
+		$numppl=$obj['numppl'];
+		$ticketid=getID("shop","TicketID");
+		$seq=getID("shop","sequence");
+		$sql = "INSERT INTO ticket VALUES ('".$ticketid."', '".$shopid."', '".$ac."','".date("Y-m-d")."','".date("H:i:s")."','".$seq."');";
+		$rs = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$ticketinfo=getID("ticketinforestaurant","TicketInfoRestaurantID");
+		$sql1="INSERT INTO TicketInfoRestaurantID VALUES ('".$ticketinfo."', '".$numppl."','".$ticketid."');";
+		$rs1 = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$rc	= mysqli_num_rows($rs);
+		$rc1 = mysqli_num_rows($rs1);
+		if($rc1==1&&$rc==1){
+			echo json_encode("true");
+		}else{
+			echo json_encode("false");
+		}
+	break;
     default:
 		echo json_encode("error occur");
 		
